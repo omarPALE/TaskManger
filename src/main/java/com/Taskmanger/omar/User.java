@@ -1,14 +1,11 @@
 package com.Taskmanger.omar;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Table(name = "users") // Explicitly naming the table
-@Data
-@NoArgsConstructor
 @Entity
-public class User { // Class name should be singular and start with uppercase
+public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE) // Keep sequence strategy
     private Long id; // Use Long for compatibility with databases using BIGINT
@@ -24,4 +21,58 @@ public class User { // Class name should be singular and start with uppercase
 
     @Column(nullable = false) // Role should not be null
     private String role;
+
+    // Getters
+    public Long getId() {
+        return id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    // Setters
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    // toString method
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", email='" + email + '\'' +
+                ", role='" + role + '\'' +
+                '}';
+    }
 }
