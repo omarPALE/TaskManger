@@ -26,4 +26,9 @@ public class taskService {
         return taskDao.findById(id);
 
     }
+
+    public String addTask(Task task) {
+         taskDao.save(task);
+         return "success";
+    }
 }
