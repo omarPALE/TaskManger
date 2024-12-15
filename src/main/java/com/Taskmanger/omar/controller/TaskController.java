@@ -36,6 +36,7 @@ public class TaskController {
     @PostMapping("addtask")
     public ResponseEntity<String> addTask(@RequestBody Task task) {
         try {
+            System.out.println("Received Task: " + task);
             String response = taskservice.addTask(task);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
