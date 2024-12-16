@@ -5,7 +5,9 @@ public class RegisterUserDto {
 
     private String password;
 
-    private String fullName;
+    private String username;
+
+    private String role;
 
     // getters and setters here...
 
@@ -16,7 +18,11 @@ public class RegisterUserDto {
        return password;
    }
 
-   public String getFullName() {
-       return fullName;
+   public String getUsername() {
+       return username;
+   }
+
+   public String getRole() {
+       return role;
    }
 }

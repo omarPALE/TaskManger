@@ -2,15 +2,20 @@ package com.Taskmanger.omar.service;
 
 import com.Taskmanger.omar.LoginUserDto;
 import com.Taskmanger.omar.dao.UserDao;
-import com.Taskmanger.omar.service.RegisterUserDto;
 import com.Taskmanger.omar.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 @Service
 public class AuthenticationService {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
+
+    @Autowired
     private final UserDao userRepository;
 
     private final PasswordEncoder passwordEncoder;
@@ -29,11 +34,15 @@ public class AuthenticationService {
 
     public User signup(RegisterUserDto input) {
         User user = new User();
-        user.setUsername(input.getFullName());
+        user.setUsername(input.getUsername());
         user.setEmail(input.getEmail());
         user.setPassword(passwordEncoder.encode(input.getPassword()));
-
-        return userRepository.save(user);
+        user.setRole(input.getRole());
+        logger.info("Received request to register user: {}", input);
+        logger.info("Before saving user: {}", user);
+        User savedUser = userRepository.save(user);
+        logger.info("User saved: {}", savedUser);
+        return savedUser;
     }
 
 

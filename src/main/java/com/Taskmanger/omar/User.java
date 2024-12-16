@@ -69,6 +69,7 @@ public class User implements UserDetails {
         this.role = role;
     }
 
+
     // toString method
     @Override
     public String toString() {

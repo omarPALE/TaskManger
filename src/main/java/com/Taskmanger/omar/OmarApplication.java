@@ -10,4 +10,5 @@ public class OmarApplication {
 		SpringApplication.run(OmarApplication.class, args);
 	}
 
+
 }
