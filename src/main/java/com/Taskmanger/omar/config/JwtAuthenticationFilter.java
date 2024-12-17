@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -51,14 +53,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             final String jwt = authHeader.substring(7);
-            final String userEmail = jwtService.extractUsername(jwt);
+            final String userEmail = jwtService.extractEmail(jwt);
+            System.out.println("Extracted username from JWT: " + userEmail);  // Debugging line
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            System.out.println("Fucj you"+authentication);  // Debugging line
 
             if (userEmail != null && authentication == null) {
+                System.out.println("Fucj me");  // Debugging line
+
+                System.out.println("Loading user details for: " + userEmail);  // Before query
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+                System.out.println("User details loaded for: " + userEmail);  // After query
+
+                System.out.println("Fucj me2");  // Debugging line
+
+                System.out.println("Fuck you from inside"+ userDetails.toString());  // Debugging line
+
+                System.out.println("UserDetails loaded: " + userDetails.getUsername());  // Debugging line
 
                 if (jwtService.isTokenValid(jwt, userDetails)) {
+                    System.out.println("Token is valid");  // Debugging line
+
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,
@@ -68,11 +84,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
+                else {
+                    System.out.println("Token is invalid or expired");  // Debugging line
+                }
             }
+            System.out.println("Fucj me after if");  // Debugging line
 
             filterChain.doFilter(request, response);
-        } catch (Exception exception) {
-            handlerExceptionResolver.resolveException(request, response, null, exception);
+        }  catch (UsernameNotFoundException e) {
+            System.out.println("User not found: " + userDetailsService.toString());
+            handlerExceptionResolver.resolveException(request, response, null, e);
         }
     }
+
 }

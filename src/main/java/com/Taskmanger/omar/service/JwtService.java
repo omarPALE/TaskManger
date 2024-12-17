@@ -35,12 +35,22 @@ public class JwtService {
     }
 
     public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails);
+        String email = userDetails.getUsername(); // Replace this with the correct email if available
+        return generateToken(userDetails, email);
     }
+
+    public String generateToken(UserDetails userDetails, String email) {
+        Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("email", email); // Add email to claims
+        return buildToken(extraClaims, userDetails, jwtExpiration);
+    }
+
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         return buildToken(extraClaims, userDetails, jwtExpiration);
     }
+
+
 
     public long getExpirationTime() {
         return jwtExpiration;
@@ -51,6 +61,7 @@ public class JwtService {
             UserDetails userDetails,
             long expiration
     ) {
+        System.out.println("Building token with expiration: " + expiration);  // Debugging line
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
@@ -63,11 +74,16 @@ public class JwtService {
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+        boolean isValid = (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+        System.out.println("Token valid: " + isValid);  // Debugging line
+        return isValid;
     }
 
     private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+        Date expirationDate = extractExpiration(token);
+        boolean expired = expirationDate.before(new Date());
+        System.out.println("Token expired: " + expired + " (Expires at: " + expirationDate + ")");  // Debugging line
+        return expired;
     }
 
     private Date extractExpiration(String token) {
@@ -86,5 +102,8 @@ public class JwtService {
     private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+    public String extractEmail(String token) {
+        return extractClaim(token, claims -> claims.get("email", String.class));
     }
 }

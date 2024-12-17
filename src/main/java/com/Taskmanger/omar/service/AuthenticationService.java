@@ -48,12 +48,16 @@ public class AuthenticationService {
 
 
     public User authenticate(LoginUserDto input) {
+        System.out.println("before sign in email is :"+input.getEmail());
+        System.out.println("before data base email :"+userRepository.findByEmail(input.getEmail()));
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         input.getEmail(),
                         input.getPassword()
                 )
         );
+        System.out.println("sign in email is :"+input.getEmail());
+        System.out.println("data base email :"+userRepository.findByEmail(input.getEmail()));
 
         return userRepository.findByEmail(input.getEmail())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));

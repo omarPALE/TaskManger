@@ -5,12 +5,20 @@ import com.Taskmanger.omar.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class userService {
 
     @Autowired
-
     UserDao userdao;
+
+    public List<User> allUsers() {
+
+        return new ArrayList<>(userdao.findAll());
+    }
+
     public String addUser(User user) {
         userdao.save(user);
         return "success";

@@ -39,8 +39,12 @@ public class SecurityConfiguration {
                 // Configure authorization rules
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(new AntPathRequestMatcher("/auth/**")).permitAll()
+                        .requestMatchers("/api/user/**", "/api/task/**").authenticated()
                         .anyRequest().authenticated()
+
+
                 )
+
 
                 // Stateless session management
                 .sessionManagement(session ->

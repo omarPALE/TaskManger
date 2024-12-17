@@ -42,7 +42,9 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto) {
+        System.out.println("Generated JWT Token: ");  // Log token generation
         User authenticatedUser = authenticationService.authenticate(loginUserDto);
+        System.out.println("authenticatedUser is : "+authenticatedUser);  // Log token generation
 
         String jwtToken = jwtService.generateToken(authenticatedUser);
         System.out.println("Generated JWT Token: " + jwtToken);  // Log token generation
