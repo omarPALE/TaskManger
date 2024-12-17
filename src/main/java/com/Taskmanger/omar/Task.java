@@ -49,6 +49,11 @@ public class Task {
         return user != null ? user.getId() : null; // Assuming User has a getId() method
     }
 
+    public void setUserId(Long userId) {
+        if (user != null) {
+            user.setId(userId);
+        }
+    }
     public long getId() {
         return id;
     }

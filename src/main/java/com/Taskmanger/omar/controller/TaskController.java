@@ -45,7 +45,7 @@ public class TaskController {
             System.out.println("Received Task: " + task);
 
             // Get the authenticated user
-            ResponseEntity<User> userResponse = usercontroller.authenticatedUser(); // Get the authenticated user from the UserController
+            ResponseEntity<User> userResponse = usercontroller.authenticatedUser();
 
             if (userResponse.getStatusCode() == HttpStatus.UNAUTHORIZED) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -53,7 +53,7 @@ public class TaskController {
             }
 
             User authenticatedUser = userResponse.getBody();
-            System.out.println("authorized user fromtask controller is: "+authenticatedUser);
+            System.out.println("Authenticated user from Task controller: " + authenticatedUser);
 
             if (authenticatedUser == null) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -61,18 +61,14 @@ public class TaskController {
             }
 
             // Set the authenticated user to the task
-            task.setUser(authenticatedUser);  // Set the authenticated user to the task
-            System.out.println("task user is: "+task.getUser());
+            task.setUser(authenticatedUser);
+            System.out.println("Task user set: " + task.getUser());
 
             // Call the service to add the task
             String response = taskservice.addTask(task);
-
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            // Log the error message for debugging purposes (optional)
             e.printStackTrace();
-
-            // Return an error response with the appropriate status code
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error adding task: " + e.getMessage());
         }
