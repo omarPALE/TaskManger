@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
 import "./task.css";
@@ -13,8 +13,28 @@ const TaskPage = ({ token }) => {
     priority: "Medium", // Default priority
     category: "",
     dueDate: "",
-    userId: 1, // Assuming userId is 1 for now, can be dynamic
   });
+
+  // Fetch tasks on page load
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:8080/api/task/usertasks",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setTasks(response.data);
+      } catch (error) {
+        console.error("Error fetching tasks:", error);
+      }
+    };
+
+    fetchTasks();
+  }, [token]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -23,16 +43,14 @@ const TaskPage = ({ token }) => {
 
   const addTask = async () => {
     if (newTask.title && newTask.description) {
-      console.log("token is:", token);
       try {
-        // Ensure the date is in the correct format
         const formattedDate = new Date(newTask.dueDate)
           .toISOString()
           .split("T")[0];
 
         const response = await axios.post(
           "http://localhost:8080/api/task/addtask",
-          { ...newTask, dueDate: formattedDate }, // Format the dueDate
+          { ...newTask, dueDate: formattedDate },
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -42,10 +60,7 @@ const TaskPage = ({ token }) => {
         );
 
         if (response.status === 200) {
-          setTasks([
-            ...tasks,
-            { ...newTask, id: Date.now(), completed: false },
-          ]);
+          setTasks([...tasks, response.data]); // Append the new task
           setNewTask({
             title: "",
             description: "",
@@ -53,12 +68,11 @@ const TaskPage = ({ token }) => {
             priority: "Medium",
             category: "",
             dueDate: "",
-            userId: 1,
           });
           setShowPopup(false);
         }
       } catch (error) {
-        console.error("There was an error adding the task:", error);
+        console.error("Error adding task:", error);
       }
     }
   };
@@ -168,7 +182,6 @@ const TaskPage = ({ token }) => {
               value={newTask.priority}
               onChange={handleInputChange}
             >
-              <option value="">Select Priority</option>
               <option value="Low">Low</option>
               <option value="Medium">Medium</option>
               <option value="High">High</option>

@@ -31,4 +31,10 @@ public class taskService {
          taskDao.save(task);
          return "success";
     }
+
+    public List<Task> getTaskByUserId(Long userId) {
+        return taskDao.findByUser_Id(userId);
+    }
+
+
 }
