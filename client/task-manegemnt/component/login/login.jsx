@@ -1,8 +1,9 @@
 import { useState } from "react";
+import PropTypes from "prop-types"; // Import PropTypes
 import axios from "axios";
 import "./login.css";
 import { useNavigate } from "react-router-dom";
-const LogIn = () => {
+const LogIn = (props) => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -10,7 +11,6 @@ const LogIn = () => {
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -28,9 +28,9 @@ const LogIn = () => {
       });
 
       console.log("Login successful:", response.data);
+      props.setToken(response.data.token);
       alert("Login successful!"); // Or redirect user to a dashboard
       navigate("/"); // Replace "/dashboard" with the desired route for logged-in users
-
     } catch (err) {
       console.error("Error during login:", err);
       setError("Invalid email or password. Please try again.");
@@ -72,6 +72,10 @@ const LogIn = () => {
       </div>
     </div>
   );
+};
+
+LogIn.propTypes = {
+  setToken: PropTypes.func.isRequired,
 };
 
 export default LogIn;

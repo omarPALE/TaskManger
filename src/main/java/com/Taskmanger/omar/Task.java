@@ -2,6 +2,8 @@ package com.Taskmanger.omar;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.time.LocalDate; // For handling dates properly
 
 @Table(name = "tasks") // Explicitly naming the table
@@ -36,6 +38,17 @@ public class Task {
     private User user; // Foreign key to the User entity
 
     // Getters and setters
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+    public Long getUserId() {
+        return user != null ? user.getId() : null; // Assuming User has a getId() method
+    }
+
     public long getId() {
         return id;
     }
@@ -112,5 +125,6 @@ public class Task {
                 ", userId=" + user +
                 '}';
     }
+
 
 }

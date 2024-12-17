@@ -1,6 +1,8 @@
 package com.Taskmanger.omar.controller;
 
 import com.Taskmanger.omar.Task;
+import com.Taskmanger.omar.User;
+
 import com.Taskmanger.omar.service.taskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,13 +18,15 @@ public class TaskController {
 
     @Autowired
     taskService taskservice;
+    @Autowired
+    UserController usercontroller;
 
-    @GetMapping("tasks")
+    @GetMapping("/tasks")
     public List<Task> getAllTasks(){
         return taskservice.getAllTasks();
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Optional<Task>> getTaskById(@PathVariable int id){
 
         Optional<Task> task = taskservice.getTaskByid(id);
@@ -33,11 +37,36 @@ public class TaskController {
         }
     }
 
-    @PostMapping("addtask")
+
+    @PostMapping("/addtask")
+    @CrossOrigin(origins = "http://localhost:5173")  // Allowing CORS for your frontend
     public ResponseEntity<String> addTask(@RequestBody Task task) {
         try {
             System.out.println("Received Task: " + task);
+
+            // Get the authenticated user
+            ResponseEntity<User> userResponse = usercontroller.authenticatedUser(); // Get the authenticated user from the UserController
+
+            if (userResponse.getStatusCode() == HttpStatus.UNAUTHORIZED) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("User is not authenticated.");
+            }
+
+            User authenticatedUser = userResponse.getBody();
+            System.out.println("authorized user fromtask controller is: "+authenticatedUser);
+
+            if (authenticatedUser == null) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Error: Could not retrieve authenticated user.");
+            }
+
+            // Set the authenticated user to the task
+            task.setUser(authenticatedUser);  // Set the authenticated user to the task
+            System.out.println("task user is: "+task.getUser());
+
+            // Call the service to add the task
             String response = taskservice.addTask(task);
+
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             // Log the error message for debugging purposes (optional)

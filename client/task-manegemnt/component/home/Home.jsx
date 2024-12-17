@@ -15,6 +15,9 @@ const Home = () => {
           <Link to="/signup" className="nav-link">
             Sign Up
           </Link>
+          <Link to="/task" className="nav-link">
+            Task
+          </Link>
         </div>
       </nav>
       <div className="home-content">
