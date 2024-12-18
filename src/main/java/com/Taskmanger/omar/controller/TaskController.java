@@ -3,12 +3,14 @@ package com.Taskmanger.omar.controller;
 import com.Taskmanger.omar.Task;
 import com.Taskmanger.omar.User;
 
+import com.Taskmanger.omar.dto.TaskSearchDTO;
 import com.Taskmanger.omar.service.taskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +23,8 @@ public class TaskController {
     taskService taskservice;
     @Autowired
     UserController usercontroller;
+
+
 
     @GetMapping("/tasks")
     @CrossOrigin(origins = "http://localhost:5173")  // Allowing CORS for your frontend
@@ -121,6 +125,23 @@ public class TaskController {
                     .body("Error adding task: " + e.getMessage());
         }
     }
+    @GetMapping("/search")
+    public ResponseEntity<Page<Task>> searchTasks(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String priority,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate,
+            Pageable pageable) {
+
+        TaskSearchDTO searchDTO = new TaskSearchDTO(title, category, status, priority, startDate, endDate);
+
+        Page<Task> tasks = taskservice.searchTasks(searchDTO, pageable);
+
+        return tasks.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(tasks);
+    }
+
 
 
 }

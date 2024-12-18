@@ -3,9 +3,11 @@ package com.Taskmanger.omar.service;
 import com.Taskmanger.omar.Task;
 import com.Taskmanger.omar.dao.TaskDao;
 import com.Taskmanger.omar.dao.UserDao;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import com.Taskmanger.omar.dto.TaskSearchDTO;
 import java.util.List;
 import java.util.Optional;
 
@@ -62,4 +64,16 @@ public class taskService {
         }
     }
 
+
+    public Page<Task> searchTasks(TaskSearchDTO searchDTO, Pageable pageable) {
+        return taskDao.findByFilters(
+                searchDTO.getTitle(),
+                searchDTO.getCategory(),
+                searchDTO.getStatus(),
+                searchDTO.getPriority(),
+                searchDTO.getStartDate(),
+                searchDTO.getEndDate(),
+                pageable
+        );
+    }
 }

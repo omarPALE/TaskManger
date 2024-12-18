@@ -18,30 +18,46 @@ const TaskPage = ({ token, reload, setReload }) => {
     dueDate: "",
   });
 
-  // Fetch tasks on page load
+  // Search state
+  const [searchParams, setSearchParams] = useState({
+    filter: "title", // Default filter
+    searchTerm: "",
+  });
+
+  // Fetch tasks on page load or reload
   useEffect(() => {
     const fetchTasks = async () => {
       try {
+        const { filter, searchTerm } = searchParams;
+        const query = new URLSearchParams({
+          [filter]: searchTerm,
+        }).toString();
+
         const response = await axios.get(
-          "http://localhost:8080/api/task/usertasks",
+          `http://localhost:8080/api/task/search?${query}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           }
         );
-        setTasks(response.data);
+        setTasks(response.data.content); // Assuming the response has a `content` array of tasks
       } catch (error) {
         console.error("Error fetching tasks:", error);
       }
     };
 
     fetchTasks();
-  }, [reload, token]);
+  }, [reload, token, searchParams]); // Fetch tasks when searchParams or reload changes
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setTaskDetails((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSearchChange = (e) => {
+    const { name, value } = e.target;
+    setSearchParams((prev) => ({ ...prev, [name]: value }));
   };
 
   const openPopup = (task = null) => {
@@ -130,6 +146,30 @@ const TaskPage = ({ token, reload, setReload }) => {
     <div className="task-page">
       <div className="navbar">
         <h1>Task Management</h1>
+
+        {/* Search bar and filter dropdown */}
+        <div className="search-container">
+          <select
+            name="filter"
+            value={searchParams.filter}
+            onChange={handleSearchChange}
+          >
+            <option value="title">Title</option>
+            <option value="category">Category</option>
+            <option value="status">Status</option>
+            <option value="priority">Priority</option>
+            <option value="dueDate">Due Date</option>
+          </select>
+
+          <input
+            type="text"
+            name="searchTerm"
+            placeholder={`Search by ${searchParams.filter}`}
+            value={searchParams.searchTerm}
+            onChange={handleSearchChange}
+          />
+        </div>
+
         <button className="create-task-btn" onClick={() => openPopup()}>
           Create Task
         </button>

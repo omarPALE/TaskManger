@@ -12,6 +12,18 @@ body {
   overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
+
+.search-container {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.search-container input, .search-container select {
+  padding: 5px;
+  margin-left: 10px;
+}
+
 .navbar {
   display: flex;
   justify-content: space-between;
