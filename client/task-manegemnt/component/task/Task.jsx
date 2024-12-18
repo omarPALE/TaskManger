@@ -6,10 +6,20 @@ import "./task.css";
 const TaskPage = ({ token }) => {
   const [tasks, setTasks] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState("");
-  const [editTask, setEditTask] = useState(null); // Track task being edited
-  const [updatedFields, setUpdatedFields] = useState({});
+  const [currentTask, setCurrentTask] = useState(null);
+  const [taskDetails, setTaskDetails] = useState({
+    title: "",
+    description: "",
+    status: "Pending",
+    priority: "Medium",
+    category: "",
+    dueDate: "",
+  });
+  const [reload, setReload] = useState(false);
 
+  // Fetch tasks on page load
   useEffect(() => {
     const fetchTasks = async () => {
       try {
@@ -28,47 +38,65 @@ const TaskPage = ({ token }) => {
     };
 
     fetchTasks();
-  }, [token]);
+  }, [reload, token]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setUpdatedFields((prev) => ({ ...prev, [name]: value }));
+    setTaskDetails((prev) => ({ ...prev, [name]: value }));
   };
 
-  const openEditPopup = (task) => {
-    setEditTask(task);
-    setUpdatedFields(task);
+  const openPopup = (task = null) => {
+    setIsEditing(!!task);
+    setCurrentTask(task);
+    setTaskDetails(
+      task || {
+        title: "",
+        description: "",
+        status: "Pending",
+        priority: "Medium",
+        category: "",
+        dueDate: "",
+      }
+    );
     setShowPopup(true);
   };
 
-  const updateTask = async () => {
-    if (!editTask) return;
-
-    const updatedData = { ...editTask, ...updatedFields };
+  const saveTask = async () => {
     try {
-      const response = await axios.put(
-        `http://localhost:8080/api/task/update/${editTask.id}`,
-        updatedData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const endpoint = isEditing
+        ? `http://localhost:8080/api/task/update/${currentTask.id}`
+        : "http://localhost:8080/api/task/addtask";
 
-      if (response.status === 200) {
-        setTasks(
-          tasks.map((task) => (task.id === editTask.id ? response.data : task))
+      const method = isEditing ? "put" : "post";
+
+      const response = await axios[method](endpoint, taskDetails, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.status === 200 || response.status === 201) {
+        if (isEditing) {
+          setTasks(
+            tasks.map((task) =>
+              task.id === currentTask.id ? response.data : task
+            )
+          );
+          setReload(!reload);
+        } else {
+          setReload(!reload);
+          setTasks([...tasks, response.data]);
+        }
+
+        setFeedbackMessage(
+          isEditing ? "Task updated successfully!" : "Task added successfully!"
         );
-        setFeedbackMessage("Task updated successfully!");
         setTimeout(() => setFeedbackMessage(""), 4000);
-      } else {
-        console.error("Failed to update task:", response.statusText);
       }
     } catch (error) {
-      console.error("Error occurred while updating the task:", error);
-      setFeedbackMessage("Failed to update the task!");
+      console.error("Error saving task:", error);
+      setFeedbackMessage("Failed to save the task!");
       setTimeout(() => setFeedbackMessage(""), 4000);
     } finally {
       setShowPopup(false);
@@ -87,12 +115,15 @@ const TaskPage = ({ token }) => {
       );
 
       if (response.status === 200) {
+        setReload(!reload);
         setTasks(tasks.filter((task) => task.id !== id));
         setFeedbackMessage("Task deleted successfully!");
         setTimeout(() => setFeedbackMessage(""), 4000);
       }
     } catch (error) {
-      console.error("Error occurred while deleting the task:", error);
+      console.error("Error deleting task:", error);
+      setFeedbackMessage("Failed to delete the task!");
+      setTimeout(() => setFeedbackMessage(""), 4000);
     }
   };
 
@@ -100,6 +131,9 @@ const TaskPage = ({ token }) => {
     <div className="task-page">
       <div className="navbar">
         <h1>Task Management</h1>
+        <button className="create-task-btn" onClick={() => openPopup()}>
+          Create Task
+        </button>
       </div>
 
       <div className="main-content">
@@ -124,7 +158,7 @@ const TaskPage = ({ token }) => {
                 <strong>Status:</strong> {task.status}
               </p>
               <div className="task-actions">
-                <button onClick={() => openEditPopup(task)}>Update</button>
+                <button onClick={() => openPopup(task)}>Update</button>
                 <button onClick={() => deleteTask(task.id)}>Delete</button>
               </div>
             </div>
@@ -132,7 +166,7 @@ const TaskPage = ({ token }) => {
         </div>
       </div>
 
-      {showPopup && editTask && (
+      {showPopup && (
         <div className="popup active">
           <button className="close-btn" onClick={() => setShowPopup(false)}>
             &times;
@@ -142,31 +176,31 @@ const TaskPage = ({ token }) => {
               type="text"
               name="title"
               placeholder="Task Title"
-              value={updatedFields.title || ""}
+              value={taskDetails.title}
               onChange={handleInputChange}
             />
             <textarea
               name="description"
               placeholder="Task Description"
-              value={updatedFields.description || ""}
+              value={taskDetails.description}
               onChange={handleInputChange}
             ></textarea>
             <input
               type="text"
               name="category"
               placeholder="Category"
-              value={updatedFields.category || ""}
+              value={taskDetails.category}
               onChange={handleInputChange}
             />
             <input
               type="date"
               name="dueDate"
-              value={updatedFields.dueDate || ""}
+              value={taskDetails.dueDate}
               onChange={handleInputChange}
             />
             <select
               name="priority"
-              value={updatedFields.priority || ""}
+              value={taskDetails.priority}
               onChange={handleInputChange}
             >
               <option value="Low">Low</option>
@@ -175,15 +209,15 @@ const TaskPage = ({ token }) => {
             </select>
             <select
               name="status"
-              value={updatedFields.status || ""}
+              value={taskDetails.status}
               onChange={handleInputChange}
             >
               <option value="Pending">Pending</option>
               <option value="Completed">Completed</option>
               <option value="In Progress">In Progress</option>
             </select>
-            <button className="update-btn" onClick={updateTask}>
-              Update Task
+            <button className="save-btn" onClick={saveTask}>
+              {isEditing ? "Update Task" : "Add Task"}
             </button>
           </div>
         </div>
