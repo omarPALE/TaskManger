@@ -2,6 +2,7 @@ package com.Taskmanger.omar.service;
 
 import com.Taskmanger.omar.Task;
 import com.Taskmanger.omar.dao.TaskDao;
+import com.Taskmanger.omar.dao.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,8 +12,10 @@ import java.util.Optional;
 @Service
 public class taskService {
     @Autowired
-
     TaskDao taskDao;
+    @Autowired
+    private UserDao userDao;
+
     public List<Task> getAllTasks() {
 
         return taskDao.findAll();
@@ -40,4 +43,23 @@ public class taskService {
     public void DeleteTaskById(int id) {
           taskDao.deleteById(id);
     }
+
+    public boolean updateTask(Task task, int id) {
+        Optional<Task> existingTask = taskDao.findById(id); // Fetch task by id
+        if (existingTask.isPresent()) {
+            Task updatedTask = existingTask.get();
+            updatedTask.setTitle(task.getTitle());
+            updatedTask.setDescription(task.getDescription());
+            updatedTask.setStatus(task.getStatus());
+            updatedTask.setPriority(task.getPriority());
+            updatedTask.setCategory(task.getCategory());
+            updatedTask.setDueDate(task.getDueDate());
+
+            taskDao.save(updatedTask); // Save the updated task
+            return true;
+        } else {
+            return false; // Task not found
+        }
+    }
+
 }

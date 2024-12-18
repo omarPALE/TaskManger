@@ -60,7 +60,7 @@ public class TaskController {
     @CrossOrigin(origins = "http://localhost:5173")  // Allowing CORS for your frontend
     public ResponseEntity<Optional<Task>> getTaskById(@PathVariable int id){
 
-        Optional<Task> task = taskservice.getTaskByid(id);
+            Optional<Task> task = taskservice.getTaskByid(id);
         if (task.isPresent()) {
             return ResponseEntity.ok(task); // Return the found task
         } else {
@@ -75,11 +75,22 @@ public class TaskController {
         return "success";
     }
 
+    @PutMapping("/update/{id}")
+    public ResponseEntity<String> UpdateTask(@PathVariable int id, @RequestBody Task task) {
+        boolean isUpdated = taskservice.updateTask(task, id);  // Call service to update task
+
+        if (isUpdated) {
+            return ResponseEntity.ok("Task updated successfully!");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Task not found.");
+        }
+    }
+
     @PostMapping("/addtask")
     @CrossOrigin(origins = "http://localhost:5173")  // Allowing CORS for your frontend
     public ResponseEntity<String> addTask(@RequestBody Task task) {
         try {
-            System.out.println("Received Task: " + task);
+            System.out.println("Added Task: " + task);
 
             // Get the authenticated user
             ResponseEntity<User> userResponse = usercontroller.authenticatedUser();

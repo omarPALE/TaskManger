@@ -36,7 +36,7 @@ const TaskPage = ({ token }) => {
     };
 
     fetchTasks();
-  }, [token]);
+  }, [tasks, token]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
