@@ -8,17 +8,6 @@ const Home = () => {
         <div className="logo">
           <Link to="/">TaskManager</Link>
         </div>
-        <div className="nav-links">
-          <Link to="/signin" className="nav-link">
-            Sign In
-          </Link>
-          <Link to="/signup" className="nav-link">
-            Sign Up
-          </Link>
-          <Link to="/task" className="nav-link">
-            Task
-          </Link>
-        </div>
       </nav>
       <div className="home-content">
         <h1>Welcome to TaskManager</h1>

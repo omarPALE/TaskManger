@@ -4,26 +4,43 @@ import SignUp from "../component/signup/Signup";
 import Home from "../component/home/Home";
 import TaskPage from "../component/task/Task";
 import { useState } from "react";
-
+import Styles from "./Styles";
 function App() {
   const [token, setToken] = useState("");
-
+  const [reload, setReload] = useState(false);
+  console.log("reload state", reload);
   return (
     <Router>
       {/* Navigation Bar */}
-      <nav>
-        <ul>
+      <nav className="navbar" style={{ width: "inhert" }}>
+        <ul className="navbar-links" style={Styles.navbar}>
           <li>
-            <Link to="/">Home</Link>
+            <Link to="/" style={Styles.navbarLink}>
+              Home
+            </Link>
           </li>
           <li>
-            <Link to="/task">Task Page</Link>
+            <Link
+              to="/task"
+              style={Styles.navbarLink}
+              reload={reload}
+              setReload={setReload}
+              onClick={() => {
+                setReload(!reload);
+              }}
+            >
+              Task Page
+            </Link>
           </li>
           <li>
-            <Link to="/signup">Sign Up</Link>
+            <Link to="/signup" style={Styles.navbarLink}>
+              Sign Up
+            </Link>
           </li>
           <li>
-            <Link to="/signin">Sign In</Link>
+            <Link to="/signin" style={Styles.navbarLink}>
+              Sign In
+            </Link>
           </li>
         </ul>
       </nav>

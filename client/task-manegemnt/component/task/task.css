@@ -186,12 +186,12 @@ body {
 }
 
 .task-actions button:nth-child(2) {
-  background-color: #ff9800;
+  background-color: #ff0606;
   color: #fff;
 }
 
 .task-actions button:nth-child(3) {
-  background-color: #f44336;
+  background-color: #f44e42;
   color: #fff;
 }
 

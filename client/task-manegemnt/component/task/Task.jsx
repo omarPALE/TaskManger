@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import axios from "axios";
 import "./task.css";
 
-const TaskPage = ({ token }) => {
+const TaskPage = ({ token, reload, setReload }) => {
   const [tasks, setTasks] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -17,7 +17,6 @@ const TaskPage = ({ token }) => {
     category: "",
     dueDate: "",
   });
-  const [reload, setReload] = useState(false);
 
   // Fetch tasks on page load
   useEffect(() => {
@@ -228,6 +227,8 @@ const TaskPage = ({ token }) => {
 
 TaskPage.propTypes = {
   token: PropTypes.string.isRequired,
+  reload: PropTypes.bool.isRequired,
+  setReload: PropTypes.func.isRequired,
 };
 
 export default TaskPage;
