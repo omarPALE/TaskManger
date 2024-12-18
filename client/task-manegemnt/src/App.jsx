@@ -5,6 +5,7 @@ import Home from "../component/home/Home";
 import TaskPage from "../component/task/Task";
 import { useState } from "react";
 import Styles from "./Styles";
+import Report from "../component/report/Report";
 function App() {
   const [token, setToken] = useState("");
   const [reload, setReload] = useState(false);
@@ -54,6 +55,7 @@ function App() {
           path="/signin"
           element={<LogIn token={token} setToken={setToken} />}
         />
+        <Route path="/report" element={<Report />} />
       </Routes>
     </Router>
   );

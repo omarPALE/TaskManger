@@ -15,9 +15,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-import java.util.List;
-
-@Configuration
+import java.util.List;@Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
     private final AuthenticationProvider authenticationProvider;
@@ -39,16 +37,18 @@ public class SecurityConfiguration {
 
                 // Configure authorization rules
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(new AntPathRequestMatcher("/auth/**")).permitAll()
+                        // Allow access to Swagger UI and OpenAPI docs with the correct context path
+                        .requestMatchers("/context-path/swagger-ui.html", "/context-path/swagger-ui/**", "/context-path/v3/api-docs/**", "/context-path/v2/api-docs/**")
+                        .permitAll()
+
+                        // Specific paths for authentication
+                        .requestMatchers("/auth/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()
-                        .requestMatchers(HttpMethod.OPTIONS, "/swagger-ui/**").permitAll()
-                        .requestMatchers(HttpMethod.OPTIONS, "/v3/api-docs/**").permitAll()
+
+                        // Allow access to other endpoints as needed
                         .requestMatchers("/api/user/**", "/api/task/**").authenticated()
                         .anyRequest().authenticated()
-
-
                 )
-
 
                 // Stateless session management
                 .sessionManagement(session ->
@@ -79,5 +79,4 @@ public class SecurityConfiguration {
 
         return source;
     }
-
 }

@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
+import { useNavigate } from "react-router-dom"; // Import useNavigate from react-router-dom
 import "./task.css";
 
 const TaskPage = ({ token, reload, setReload }) => {
+  const navigate = useNavigate(); // Initialize navigate hook
   const [tasks, setTasks] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -42,8 +44,18 @@ const TaskPage = ({ token, reload, setReload }) => {
           }
         );
         setTasks(response.data.content); // Assuming the response has a `content` array of tasks
+
+        // Set feedback message if no tasks are found
+        if (response.data.content.length === 0) {
+          setFeedbackMessage("No tasks found matching your search criteria.");
+          setTimeout(() => setFeedbackMessage(""), 4000);
+        } else {
+          setFeedbackMessage("");
+        }
       } catch (error) {
         console.error("Error fetching tasks:", error);
+        setFeedbackMessage("Failed to fetch tasks.");
+        setTimeout(() => setFeedbackMessage(""), 4000);
       }
     };
 
@@ -142,6 +154,10 @@ const TaskPage = ({ token, reload, setReload }) => {
     }
   };
 
+  const navigateToReport = () => {
+    navigate("/report", { state: { tasks } }); // Navigate to the Report page
+  };
+
   return (
     <div className="task-page">
       <div className="navbar">
@@ -169,7 +185,10 @@ const TaskPage = ({ token, reload, setReload }) => {
             onChange={handleSearchChange}
           />
         </div>
-
+        {/* Report Button */}
+        <button className="report-btn" onClick={navigateToReport}>
+          Report
+        </button>
         <button className="create-task-btn" onClick={() => openPopup()}>
           Create Task
         </button>
