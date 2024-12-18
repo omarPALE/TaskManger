@@ -14,6 +14,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("api/task")
+@CrossOrigin(origins = "http://localhost:5173")  // Allowing CORS for your frontend
 public class TaskController {
 
     @Autowired
@@ -67,6 +68,12 @@ public class TaskController {
         }
     }
 
+    @DeleteMapping("/delete/{id}")
+    @CrossOrigin(origins = "http://localhost:5173")  // Allowing CORS for your frontend
+    public String DeleteTask(@PathVariable int id){
+        taskservice.DeleteTaskById(id);
+        return "success";
+    }
 
     @PostMapping("/addtask")
     @CrossOrigin(origins = "http://localhost:5173")  // Allowing CORS for your frontend
@@ -103,6 +110,7 @@ public class TaskController {
                     .body("Error adding task: " + e.getMessage());
         }
     }
+
 
 }
 

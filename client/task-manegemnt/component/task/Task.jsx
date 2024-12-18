@@ -6,6 +6,7 @@ import "./task.css";
 const TaskPage = ({ token }) => {
   const [tasks, setTasks] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState("");
   const [newTask, setNewTask] = useState({
     title: "",
     description: "",
@@ -28,6 +29,7 @@ const TaskPage = ({ token }) => {
           }
         );
         setTasks(response.data);
+        console.log(tasks);
       } catch (error) {
         console.error("Error fetching tasks:", error);
       }
@@ -77,8 +79,30 @@ const TaskPage = ({ token }) => {
     }
   };
 
-  const deleteTask = (id) => {
-    setTasks(tasks.filter((task) => task.id !== id));
+  const deleteTask = async (id) => {
+    try {
+      const response = await axios.delete(
+        `http://localhost:8080/api/task/delete/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Pass the token for authentication
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        // Remove the task from the local state if the deletion is successful
+        setTasks(tasks.filter((task) => task.id !== id));
+        setFeedbackMessage("Task deleted successfully!");
+        setTimeout(() => setFeedbackMessage(""), 4000); // Hide after 4 seconds
+      } else {
+        console.error("Failed to delete task:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error occurred while deleting the task:", error);
+      setFeedbackMessage("Failed to delete the task!");
+      setTimeout(() => setFeedbackMessage(""), 4000);
+    }
   };
 
   const updateTask = (id, updatedDetails) => {
@@ -109,6 +133,10 @@ const TaskPage = ({ token }) => {
 
       {/* Main Content */}
       <div className="main-content">
+        {/* Feedback Popup */}
+        {feedbackMessage && (
+          <div className="feedback-popup">{feedbackMessage}</div>
+        )}
         {/* Task List */}
         <div className="task-list">
           {tasks.map((task) => (

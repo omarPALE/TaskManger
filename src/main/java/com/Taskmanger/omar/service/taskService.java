@@ -37,4 +37,7 @@ public class taskService {
     }
 
 
+    public void DeleteTaskById(int id) {
+          taskDao.deleteById(id);
+    }
 }
