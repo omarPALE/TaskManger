@@ -2,7 +2,7 @@ package com.Taskmanger.omar.controller;
 
 import com.Taskmanger.omar.Task;
 import com.Taskmanger.omar.User;
-
+import com.Taskmanger.omar.service.auditlogService;
 import com.Taskmanger.omar.dto.TaskSearchDTO;
 import com.Taskmanger.omar.service.taskService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +23,8 @@ public class TaskController {
     taskService taskservice;
     @Autowired
     UserController usercontroller;
-
-
+    @Autowired
+    private auditlogService audit_Log_service;
 
     @GetMapping("/tasks")
     @CrossOrigin(origins = "http://localhost:5173")  // Allowing CORS for your frontend
@@ -74,9 +74,34 @@ public class TaskController {
 
     @DeleteMapping("/delete/{id}")
     @CrossOrigin(origins = "http://localhost:5173")  // Allowing CORS for your frontend
-    public String DeleteTask(@PathVariable int id){
+    public ResponseEntity<String> deleteTask(@PathVariable int id) {
+        // Retrieve the authenticated user
+        ResponseEntity<User> userResponse = usercontroller.authenticatedUser();
+        if (userResponse.getStatusCode() == HttpStatus.UNAUTHORIZED) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("User is not authenticated.");
+        }
+
+        User authenticatedUser = userResponse.getBody();
+        if (authenticatedUser == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error: Could not retrieve authenticated user.");
+        }
+
+        // Fetch the task by its ID
+        Optional<Task> task = taskservice.getTaskByid(id);
+        if (task.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Error: Task not found.");
+        }
+
+        // Record the delete action in the audit log
+        audit_Log_service.recordAction(authenticatedUser.getId(), "Deleted Task: ", task);
+
+        // Perform the deletion
         taskservice.DeleteTaskById(id);
-        return "success";
+
+        return ResponseEntity.ok("Task successfully deleted.");
     }
 
     @PutMapping("/update/{id}")
