@@ -14,9 +14,8 @@ public class AuditLog {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private Long user_id;
 
     @Column(nullable = false)
     private String action;
@@ -33,13 +32,9 @@ public class AuditLog {
         this.id = id;
     }
 
-    // Getter and Setter for user
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
+    // Getter and Setter for user_id
+    public Long getUser() {
+        return user_id;
     }
 
     // Getter and Setter for action
@@ -65,14 +60,14 @@ public class AuditLog {
     public String toString() {
         return "AuditLog{" +
                 "id=" + id +
-                ", user=" + (user != null ? user.getId() : "null") + // Avoid LazyInitializationException
+                ", user=" + (user_id != null ? user_id: "null") + // Avoid LazyInitializationException
                 ", action='" + action + '\'' +
                 ", timestamp=" + timestamp +
                 '}';
     }
 
     public void setUserId(Long userId) {
-        this.user.setId(userId);
+        this.user_id = userId;
 
     }
 }

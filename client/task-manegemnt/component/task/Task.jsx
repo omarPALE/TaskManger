@@ -4,7 +4,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom"; // Import useNavigate from react-router-dom
 import "./task.css";
 
-const TaskPage = ({ token, reload, setReload }) => {
+const TaskPage = ({ token }) => {
   const navigate = useNavigate(); // Initialize navigate hook
   const [tasks, setTasks] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
@@ -19,6 +19,7 @@ const TaskPage = ({ token, reload, setReload }) => {
     category: "",
     dueDate: "",
   });
+  const [reload, setReload] = useState(false);
 
   // Search state
   const [searchParams, setSearchParams] = useState({
@@ -43,24 +44,24 @@ const TaskPage = ({ token, reload, setReload }) => {
             },
           }
         );
-        setTasks(response.data.content); // Assuming the response has a `content` array of tasks
+        setTasks(response.data.content); // Update the task list with fresh data
 
-        // Set feedback message if no tasks are found
+        // Feedback for empty results
         if (response.data.content.length === 0) {
           setFeedbackMessage("No tasks found matching your search criteria.");
-          setTimeout(() => setFeedbackMessage(""), 4000);
         } else {
           setFeedbackMessage("");
         }
       } catch (error) {
         console.error("Error fetching tasks:", error);
         setFeedbackMessage("Failed to fetch tasks.");
+      } finally {
         setTimeout(() => setFeedbackMessage(""), 4000);
       }
     };
 
     fetchTasks();
-  }, [reload, token, searchParams]); // Fetch tasks when searchParams or reload changes
+  }, [reload, token, searchParams]); // Dependencies to trigger task fetching
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -104,28 +105,16 @@ const TaskPage = ({ token, reload, setReload }) => {
       });
 
       if (response.status === 200 || response.status === 201) {
-        if (isEditing) {
-          setTasks(
-            tasks.map((task) =>
-              task.id === currentTask.id ? response.data : task
-            )
-          );
-          setReload(!reload);
-        } else {
-          setReload(!reload);
-          setTasks([...tasks, response.data]);
-        }
-
         setFeedbackMessage(
           isEditing ? "Task updated successfully!" : "Task added successfully!"
         );
-        setTimeout(() => setFeedbackMessage(""), 4000);
+        setReload(!reload); // Trigger re-fetch of tasks
       }
     } catch (error) {
       console.error("Error saving task:", error);
       setFeedbackMessage("Failed to save the task!");
-      setTimeout(() => setFeedbackMessage(""), 4000);
     } finally {
+      setTimeout(() => setFeedbackMessage(""), 4000);
       setShowPopup(false);
     }
   };
@@ -142,14 +131,13 @@ const TaskPage = ({ token, reload, setReload }) => {
       );
 
       if (response.status === 200) {
-        setReload(!reload);
-        setTasks(tasks.filter((task) => task.id !== id));
         setFeedbackMessage("Task deleted successfully!");
-        setTimeout(() => setFeedbackMessage(""), 4000);
+        setReload(!reload); // Trigger re-fetch of tasks
       }
     } catch (error) {
       console.error("Error deleting task:", error);
       setFeedbackMessage("Failed to delete the task!");
+    } finally {
       setTimeout(() => setFeedbackMessage(""), 4000);
     }
   };

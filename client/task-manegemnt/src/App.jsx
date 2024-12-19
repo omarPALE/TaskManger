@@ -6,6 +6,8 @@ import TaskPage from "../component/task/Task";
 import { useState } from "react";
 import Styles from "./Styles";
 import Report from "../component/report/Report";
+import AuditLogs from "../component/log/AuditLogs";
+
 function App() {
   const [token, setToken] = useState("");
   const [reload, setReload] = useState(false);
@@ -14,7 +16,7 @@ function App() {
     <Router>
       {/* Navigation Bar */}
       <nav className="navbar" style={{ width: "inhert" }}>
-        <ul className="navbar-links" style={Styles.navbar}>
+        <ul className="navbar-links" style={Styles.navbarLinks}>
           <li>
             <Link to="/" style={Styles.navbarLink}>
               Home
@@ -31,6 +33,11 @@ function App() {
               }}
             >
               Task Page
+            </Link>
+          </li>
+          <li>
+            <Link to="/log" style={Styles.navbarLink}>
+              Logs
             </Link>
           </li>
           <li>
@@ -56,6 +63,7 @@ function App() {
           element={<LogIn token={token} setToken={setToken} />}
         />
         <Route path="/report" element={<Report />} />
+        <Route path="/log" element={<AuditLogs token={token} />} />
       </Routes>
     </Router>
   );

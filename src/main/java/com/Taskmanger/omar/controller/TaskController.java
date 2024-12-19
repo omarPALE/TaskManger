@@ -103,12 +103,26 @@ public class TaskController {
 
         return ResponseEntity.ok("Task successfully deleted.");
     }
-
     @PutMapping("/update/{id}")
     public ResponseEntity<String> UpdateTask(@PathVariable int id, @RequestBody Task task) {
-        boolean isUpdated = taskservice.updateTask(task, id);  // Call service to update task
+        // Retrieve the authenticated user
+        ResponseEntity<User> userResponse = usercontroller.authenticatedUser();
+        if (userResponse.getStatusCode() == HttpStatus.UNAUTHORIZED) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("User is not authenticated.");
+        }
 
+        User authenticatedUser = userResponse.getBody();
+        if (authenticatedUser == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error: Could not retrieve authenticated user.");
+        }
+
+        // Update the task
+        boolean isUpdated = taskservice.updateTask(task, id);
         if (isUpdated) {
+            // Record the update action in the audit log
+            audit_Log_service.recordAction(authenticatedUser.getId(), "Updated Task: ", Optional.ofNullable(task));
             return ResponseEntity.ok("Task updated successfully!");
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Task not found.");
@@ -143,6 +157,10 @@ public class TaskController {
 
             // Call the service to add the task
             String response = taskservice.addTask(task);
+
+            // Record the add action in the audit log
+            audit_Log_service.recordAction(authenticatedUser.getId(), "Added Task: ", Optional.of(task));
+
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             e.printStackTrace();
@@ -150,6 +168,7 @@ public class TaskController {
                     .body("Error adding task: " + e.getMessage());
         }
     }
+
     @GetMapping("/search")
     public ResponseEntity<Page<Task>> searchTasks(
             @RequestParam(required = false) String title,

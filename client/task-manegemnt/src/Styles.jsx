@@ -44,13 +44,16 @@ const Styles = {
   },
   navbarLinks: {
     display: "flex",
+    justifyContent: "space-evenly",
     gap: "1.5rem",
+
     listStyle: "none",
   },
   navbarLink: {
     textDecoration: "none",
     color: "white",
     fontSize: "1rem",
+    marginLeft: "1.5rem",
     transition: "color 0.3s ease",
   },
   navbarLinkHover: {
